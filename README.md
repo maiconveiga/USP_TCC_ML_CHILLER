@@ -1,2 +1,10 @@
-# USP_TCC_ML_CHILLER
-Repositório criado para meu TCC. Projeto de ML front e Back para prever corrente de motor em chiller
+# TCC de MBA de engenharia de software USP.
+## Predição de consumo de energia de motor de Chiller 
+
+### Front-end
+
+- Framework: React
+
+### Back-end
+
+- Framework: FastAPI
