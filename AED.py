@@ -459,7 +459,7 @@ df_ur = df_ur.dropna()
 
 #df_ur = df_ur[~(df_ur['UR_KWH'] == 0) & (df_ur['UR_KWh_TR'] != 0)]
 
-#%%Atribuição de setpoint
+#%% Atribuição de setpoint
 
 df_ur['Setpoint_AG'] = setpoint_ur
 del setpoint_ur
@@ -534,7 +534,7 @@ del feriados_rj
 #%% Conhecendo o dataframe
 
 # Informações
-df_ur.info()
+df_info = df_ur.info()
 
 #Histograma
 df_ur.drop(columns=['UTCDateTime']).hist(figsize=(10, 8), bins=40, edgecolor='black')
@@ -552,6 +552,8 @@ sns.heatmap(corr, annot=True, cmap='coolwarm', vmin=-1, vmax=1, linewidths=0.5)
 plt.title('Mapa de Calor - Correlação de df_ur')
 plt.show()
 del corr
+
+#%% Boxplot analíticos
 
 #Boxplot de corrente Dia Semana
 plt.figure(figsize=(8, 6))
