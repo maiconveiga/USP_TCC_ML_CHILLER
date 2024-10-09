@@ -4,8 +4,6 @@ def go_UR_5MIN():
        
     import pandas as pd
     from sqlalchemy import create_engine
-    import matplotlib.pyplot as plt
-    import seaborn as sns
     import numpy as np
     
     #%% Conexão
@@ -117,6 +115,14 @@ def go_UR_5MIN():
     df_ur = pd.read_sql(ur_query, engine)
     df_corrente = pd.read_sql(corrente_query, engine)
 
+    #%% Tratando outliers
+    
+    df_ur.loc[(df_ur['UR_TEMP_SAIDA'] < 0) & (df_ur['UR_KWH'] == 0), 'UR_TEMP_SAIDA'] = df_ur['UR_TEMP_ENTRADA']
+    df_ur = df_ur[df_ur['UR_TEMP_SAIDA'] >= 4]
+    df_ur = df_ur[df_ur['UR_TEMP_ENTRADA'] >= 4]
+    df_ur = df_ur[df_ur['temp_externa'] >= 10]
+    df_ur = df_ur[df_ur['ur_temp_entrada_condensacao'] >= 10]
+    df_ur = df_ur[df_ur['ur_temp_saida_condensacao'] >= 10] 
     
     #%% Interpolação
     
@@ -128,13 +134,6 @@ def go_UR_5MIN():
     
     df_ur = df_ur.fillna(0)
       
-    
-    #%% Limpeza de valores negativos
-    
-    
-    df_ur = df_ur[df_ur['UR_TEMP_SAIDA'] >= 4]
-    
-    
     #%% Limpeza dos inf e nan
     
     df_ur.replace([np.inf, -np.inf], np.nan, inplace=True)

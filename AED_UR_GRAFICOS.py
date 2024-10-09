@@ -1,35 +1,46 @@
-#%% Importações
 
-def go_UR_GRAPHS(df_ur):
+#%% Conhecendo o dataframe
+def descricao(df_ur):
     
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-
-    #%% Conhecendo o dataframe
+    df_ur.discribe()
     
-    # Informações
+#%% Conhecendo o dataframe
+def infos(df_ur):
+    
     df_ur.info()
     
-    #%% Histograma
+#%% Histograma
+def histograma(df_ur,titulo):
+    import matplotlib.pyplot as plt
+
     df_ur.drop(columns=['UTCDateTime']).hist(figsize=(10, 8), bins=40, edgecolor='black')
     plt.tight_layout()
-    plt.suptitle('df_ur_30min', fontsize=16)
+    plt.suptitle(titulo, fontsize=16)
     plt.show()
     
-    #%% Dispersão par a par
+#%% Dispersão par a par
+def dispercao(df_ur):
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    
     sns.pairplot(df_ur.drop(columns=['UTCDateTime']))
     plt.show()
     
-    #%% Mapa de calor e correlação
-    
+#%% Mapa de calor e correlação  
+def mapacalor(df_ur):
+    import matplotlib.pyplot as plt
+    import seaborn as sns    
+
     corr = df_ur.drop(columns=['UTCDateTime','Setpoint_AG']).corr()
     plt.figure(figsize=(10, 8))
     sns.heatmap(corr, annot=True, cmap='coolwarm', vmin=-1, vmax=1, linewidths=0.5)
     plt.title('Mapa de Calor - Correlação de df_ur')
     plt.show()
 
-    
-    #%% Boxplot analíticos
+#%% Boxplot analíticos
+def boxplot(df_ur): 
+    import matplotlib.pyplot as plt
+    import seaborn as sns  
     
     #Boxplot de corrente Dia Semana
     plt.figure(figsize=(8, 6))
@@ -136,4 +147,3 @@ def go_UR_GRAPHS(df_ur):
     #TR
     ## -0.81 delta_AC
     
-    return df_ur
