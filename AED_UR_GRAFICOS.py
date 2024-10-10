@@ -24,13 +24,23 @@ def dispercao(df_ur):
 #%% Mapa de calor e correlação  
 def mapacalor(df_ur):
     import matplotlib.pyplot as plt
-    import seaborn as sns    
-
-    corr = df_ur.drop(columns=['UTCDateTime','Setpoint_AG']).corr()
-    plt.figure(figsize=(10, 8))
+    import seaborn as sns
+    
+    # Definindo um tamanho maior para a figura
+    plt.figure(figsize=(20, 18))  # Tamanho ajustado para ser mais largo e alto
+    corr = df_ur.drop(columns=['UTCDateTime']).corr()
+    
+    # Criando o heatmap
     sns.heatmap(corr, annot=True, cmap='coolwarm', vmin=-1, vmax=1, linewidths=0.5)
-    plt.title('Mapa de Calor - Correlação de df_ur')
+    
+    # Ajustando o título e espaçamento
+    plt.title('Mapa de Calor - Correlação de df_ur', fontsize=18)
+    plt.xticks(rotation=45, ha='right')  # Rotacionar os labels do eixo x para 45 graus para melhor legibilidade
+    plt.yticks(rotation=0)  # Manter os labels do eixo y na horizontal
+    plt.tight_layout()  # Ajusta o layout para evitar cortes nos rótulos
+    
     plt.show()
+
 
 #%% Boxplot analíticos
 def boxplot(df_ur): 

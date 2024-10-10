@@ -48,7 +48,8 @@ import pandas as pd
 
 #%% Análise
 
-df = pd.read_csv('df_ur_30min.csv', delimiter=',')
+df = pd.read_csv('Dados BMS\df_ur_30min.csv', delimiter=',')
+df_vag = pd.read_excel('Dados BMS\df_VAG_30min.xlsx')
  
 #%% Análise UR 
 
@@ -56,17 +57,17 @@ infos(df)
 histograma(df, 'Histograma')
 boxplot(df)
 #dispercao(df)
+mapacalor(df_vag)
 mapacalor(df)
-
 # Foi notado que:
 # ur_correnteMotor 
-#   0.99 UR_KWH
-#   -0.6 UR_TEMP_SAIDA
-#   0.84 ur_temp_entrada_condensacao
-#   0.92 ur_temp_saida_condensacao
+#   0.99 UR_KWH - Medida de potência, faz sentido.
+#   -0.6 UR_TEMP_SAIDA - Menor temperatura do chiller, menos corrente?
+#   0.84 ur_temp_entrada_condensacao - Quanto menor condensação, melhor
+#   0.92 ur_temp_saida_condensacao - Quanto menor condensação, melhor
 #   0.56 temp_externa
 #   0.88 TR
-#   0.95 delta_AC
+#   0.95 delta_AC - Quanto menor condensação, melhor
 #   0.67 VAG Predio
 # UR_KWH
 #   -0.54 UR_TEMP_SAIDA
@@ -104,5 +105,46 @@ mapacalor(df)
 #   0.52 Ligados
 # VAG Predio
 #   0.83 Ligados
+# AHUs correlacionados
+# AHU-02-01 0.66 AHU-SS1-05
+# AHU-02-02 0.6 AHU-01-07
+# AHU-03-01 0.71 AHU-02-02
+# AHU-03-02 0.65 AHU-02-02
+# AHU-03-02 0.73 AHU-03-01
+# AHU-03-01 0.62 AHU-03-03
+# AHU-05-01 0.6 AHU-04-01
+# AHU-05-03 0.61 AHU-03-03
+# AHU-06-06 0.73 AHU-06-07
+# AHU-06-09 0.75 AHU-06-10
+# AHU-06-06 0.66 AHU-06-09
+# AHU-06-06 0.67 AHU-06-10
+# AHU-06-07 0.68 AHU-06-10
+# AHU-06-10 0.6 AHU-SS1-02
+# AHU-03-01 0.61 AHU-06-01
+# AHU-06-03 0.62 AHU-06-01
+# VAG Predio 0.64 AHU-01-07
+# VAG Predio 0.7 AHU-02-02
+# VAG Predio 0.57 AHU-02-05
+# VAG Predio 0.68 AHU-03-01
+# VAG Predio 0.7 AHU-03-02
+# VAG Predio 0.66 AHU-03-03
+# VAG Predio 0.66 AHU-05-03
+# VAG Predio 0.65 AHU-06-07
+# VAG Predio 0.66 AHU-06-03
+# VAG Predio 0.69 AHU-06-01
+
+# Ligados 0.64 AHU-01-07
+# Ligados 0.76 AHU-02-02
+# Ligados 0.65 AHU-02-05
+# Ligados 0.75 AHU-03-01
+# Ligados 0.75 AHU-03-02
+# Ligados 0.65 AHU-03-03
+# Ligados 0.63 AHU-05-03
+# Ligados 0.57 AHU-06-03
+# Ligados 0.7 AHU-06-01
+
+# VAG Predio 0.83 Ligados
+
+
 
 #%% Fim
