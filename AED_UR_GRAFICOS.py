@@ -1,10 +1,5 @@
 
 #%% Conhecendo o dataframe
-def descricao(df_ur):
-    
-    df_ur.discribe()
-    
-#%% Conhecendo o dataframe
 def infos(df_ur):
     
     df_ur.info()
@@ -104,6 +99,22 @@ def boxplot(df_ur):
     plt.title('TR separado por HorarioComercial (0 = Não, 1 = HorarioComercial)')
     plt.xlabel('HorarioComercial')
     plt.ylabel('TR')
+    plt.show()
+    
+    #Boxplot de % VAG
+    plt.figure(figsize=(8, 6))
+    sns.boxplot(x='HorarioComercial', y='VAG Predio', data=df_ur)
+    plt.title('TR separado por HorarioComercial (0 = Não, 1 = HorarioComercial)')
+    plt.xlabel('HorarioComercial')
+    plt.ylabel('VAG %')
+    plt.show()
+    
+    #Boxplot de % AHUs ligados
+    plt.figure(figsize=(8, 6))
+    sns.boxplot(x='HorarioComercial', y='Ligados', data=df_ur)
+    plt.title('TR separado por HorarioComercial (0 = Não, 1 = HorarioComercial)')
+    plt.xlabel('HorarioComercial')
+    plt.ylabel('AHUs ligadas %')
     plt.show()
     
     #%% Correlações
