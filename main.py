@@ -6,14 +6,15 @@
 #%% Importações
 
 #from AED_UR_5MIN import go_UR_5MIN
-#from AED_UR_30MIN import go_UR_30MIN
-#from AED_AHU_VAG import go_AHU_VAG
+from AED_UR import getUR
+from AED_AHU_VAG import getVAG
 #from UTILS import go_LISTAR_PONTOS
 from AED_UR_GRAFICOS import boxplot
-#from AED_UR_GRAFICOS import dispercao
+from AED_UR_GRAFICOS import dispercao
 from AED_UR_GRAFICOS import histograma
 from AED_UR_GRAFICOS import infos
 from AED_UR_GRAFICOS import mapacalor
+from EAD_Meteorologico import DadosMeteorologicos
 import pandas as pd
 
 #%% Gerar lista de pontos do sistema que tem trend
@@ -23,42 +24,42 @@ import pandas as pd
 #go_UR_5MIN()
 
 #%% Executa análise com 30 minutos de internalo (Sem acréscimo)
-#go_UR_30MIN()
+getUR()
 
 #%% Executa análise de VAG
-#go_AHU_VAG()
+getVAG()
 
 #%% Gerar dataframe
 
-#df_ur_5 = pd.read_excel('df_ur_5min.xlsx')
-#df_ur_30 = pd.read_excel('df_ur_30min.xlsx')
-#df_VAG_5 = pd.read_excel('df_VAG_5min.xlsx')
-#df_VAG_30 = pd.read_excel('df_VAG_30min.xlsx')
+df_UR = pd.read_csv('Dados BMS\df_UR.csv', delimiter=',')
+df_VAG = pd.read_csv('Dados BMS\df_VAG.csv', delimiter=',')
 
 #%% Juntar os dataframes
 
-#colunas_para_juntar = ['VAG Predio', 'Ligados']
-#df_ur_5 = pd.merge(df_ur_5, df_VAG_5[['UTCDateTime'] + colunas_para_juntar], on='UTCDateTime', how='left')
-#df_ur_30 = pd.merge(df_ur_30, df_VAG_30[['UTCDateTime'] + colunas_para_juntar], on='UTCDateTime', how='left')
+colunas_para_juntar = ['VAG Predio', 'Ligados']
 
-#df_ur_5.to_csv('df_ur_5min.csv', index=False)
-#df_ur_30.to_csv('df_ur_30min.csv', index=False)
+df_UR = pd.merge(df_UR, df_VAG[['UTCDateTime'] + colunas_para_juntar], on='UTCDateTime', how='left')
 
-#del df_VAG_30, df_VAG_5, colunas_para_juntar
+df_UR.info() 
 
-#%% Análise
+del colunas_para_juntar
 
-df = pd.read_csv('Dados BMS\df_ur_30min.csv', delimiter=',')
-df_vag = pd.read_excel('Dados BMS\df_VAG_30min.xlsx')
- 
+#%% Executa tratamento de dados mateorológicos
+df_UR = DadosMeteorologicos(df_UR)
+
+df_UR.info() 
+
 #%% Análise UR 
 
-infos(df)
-histograma(df, 'Histograma')
-boxplot(df)
-#dispercao(df)
-mapacalor(df_vag)
-mapacalor(df)
+infos(df_UR)
+dispercao(df_UR)
+histograma(df_UR)
+mapacalor(df_UR)
+boxplot(df_UR)
+
+
+#%% Deduções
+
 # Foi notado que:
 # ur_correnteMotor 
 #   0.99 UR_KWH - Medida de potência, faz sentido.
@@ -132,6 +133,7 @@ mapacalor(df)
 # VAG Predio 0.65 AHU-06-07
 # VAG Predio 0.66 AHU-06-03
 # VAG Predio 0.69 AHU-06-01
+# VAG Predio 0.83 Ligados
 
 # Ligados 0.64 AHU-01-07
 # Ligados 0.76 AHU-02-02
@@ -143,8 +145,35 @@ mapacalor(df)
 # Ligados 0.57 AHU-06-03
 # Ligados 0.7 AHU-06-01
 
-# VAG Predio 0.83 Ligados
+# Pressao (mB)
+#   -0.55 ur_correnteMotor
+#   -0.55 UR_KWH
+#   -0.54 temp_entrada_condensacao
+#   -0.56 temp_saida_condensacao
+#   -0.48 TR
+#   -0.33 delta_AG
+#   -0.56 delta_AC
+#   -0.43 VAG Predio
 
+# Temperatura (°C)
+#   0.58 ur_correnteMotor
+#   0.6 UR_KWH
+#   0.52 temp_entrada_condensacao
+#   0.57 temp_saida_condensacao
+#   0.49 TR
+#   0.34 delta_AG
+#   0.62 delta_AC
+#   0.61 VAG Predio
+#   0.31 Ligados
+
+# Umidade (%)
+#   0.35 ur_correnteMotor
+#   0.33 UR_KWH
+#   0.39 temp_entrada_condensacao
+#   0.38 temp_saida_condensacao
+#   0.31 delta_AC
+
+#%% Meteorológico externo
 
 
 #%% Fim

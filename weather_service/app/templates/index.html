@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Service</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Coleta de dados meteorológicos</h1>
+
+    <!-- Formulário para coletar dados do clima -->
+    <form action="/collect_weather" method="POST">
+        <button type="submit">Coletar Dados do Clima</button>
+    </form>
+
+    <!-- Tabela para exibir os dados do banco de dados -->
+    <h2>Dados Coletados</h2>
+    <table border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>Data e Hora (UTC)</th>
+                <th>Temperatura (°C)</th>
+                <th>Pressão (hPa)</th>
+                <th>Umidade (%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in weather_data %}
+                <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Botão para gerar CSV (se necessário no futuro) -->
+    <!-- <form action="/generate_csv" method="GET">
+        <button type="submit">Gerar CSV</button>
+    </form> -->
+</body>
+</html>

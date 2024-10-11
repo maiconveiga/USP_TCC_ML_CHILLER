@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  weather_service:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      OPENWEATHER_API_KEY: "af14a5d98cd1cc1fc38ce560697d2727"
+    volumes:
+      - .:/app

@@ -1,13 +1,13 @@
 #%% Importações
 
-def go_AHU_VAG():
+def getVAG():
        
     import pandas as pd
     import pyodbc
     
 #%% Conexão
     
-    df_lista = pd.read_csv('Lista_Pontos.csv')
+    df_lista = pd.read_csv('Dados BMS\Lista_Pontos.csv')
     
     conexao = pyodbc.connect(
     'DRIVER={SQL Server};'
@@ -83,12 +83,5 @@ def go_AHU_VAG():
     df_VAG_30min['Ligados'] =((36 - (df_VAG_30min.drop(columns=['UTCDateTime']).apply(lambda row: (row == 0).sum(), axis=1)))*100)/36
     
 #%% Gerar excel
+    df_VAG_30min.to_csv('Dados BMS\df_VAG.csv', index=False)
     
-    df_VAG_5min.to_excel('df_VAG_5min.xlsx', index=False)
-    df_VAG_30min.to_excel('df_VAG_30min.xlsx', index=False)
-    
-    #%% Trabalhando com o bd V2V
- 
-    # Precisamos saber:
-    #  % de AHUS funcionando
-    #  % de VAGs abertas (Somar todas as VAGs)
