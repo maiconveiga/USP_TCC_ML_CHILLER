@@ -99,7 +99,7 @@ with col2:
 
         # Criar a barra vertical usando Plotly com a cor condicional
         fig = go.Figure(go.Bar(
-            x=['Corrente Chiller (A)'],  # Nome do eixo X
+            x=['Corrente Chiller (%)'],  # Nome do eixo X
             y=[predicted_corrente],  # Valor previsto
             marker=dict(color=bar_color),  # Cor da barra
             width=[0.3],  # Largura da barra
@@ -108,7 +108,7 @@ with col2:
 
         # Ajustando o layout do gráfico
         fig.update_layout(
-            title="Corrente Chiller (A)",  # Título do gráfico
+            title="Corrente Chiller (%)",  # Título do gráfico
             height=400,  # Altura da barra
             yaxis=dict(range=[0, 100], title="Corrente (A)"),  # Limitar de 0 a 100
             xaxis=dict(showticklabels=False),  # Remover rótulos do eixo X
