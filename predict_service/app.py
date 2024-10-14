@@ -51,7 +51,7 @@ col1, col2 = st.columns([1, 2])  # 1/3 da largura para parâmetros e 2/3 para o 
 with col1:
     st.markdown('<div class="sub-header">Parâmetros de Entrada</div>', unsafe_allow_html=True)
     pressao = st.slider('Pressão (mB)', min_value=900.0, max_value=1015.2, value=1016.85, step=0.1)
-    temperatura = st.slider('Temperatura (°C)', min_value=-15.0, max_value=21.35, value=26.15, step=0.1)
+    temperatura = st.slider('Temperatura (°C)', min_value= 15.0, max_value=40.0, value=26.15, step=0.1)
     umidade = st.slider('Umidade (%)', min_value=12.0, max_value=100.0, value=74.5, step=0.1)
     ur_temp_saida = st.slider('Temperatura de Saída UR', min_value=6.0, max_value=6.2, value=16.8, step=0.1)
     tr = st.slider('TR', min_value=0.0, max_value=600.0, value=72.10, step=1.0)
