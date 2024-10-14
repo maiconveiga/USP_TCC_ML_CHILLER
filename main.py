@@ -1,21 +1,25 @@
-#%% Instalações
-#!pip install pyodbc
-#!pip install sqlalchemy 
-#!pip install holidays
-
 #%% Importações
 
-#from AED_UR_5MIN import go_UR_5MIN
-from AED_UR import getUR
-from AED_AHU_VAG import getVAG
-#from UTILS import go_LISTAR_PONTOS
-from AED_UR_GRAFICOS import boxplot
-from AED_UR_GRAFICOS import dispercao
-from AED_UR_GRAFICOS import histograma
-from AED_UR_GRAFICOS import infos
-from AED_UR_GRAFICOS import mapacalor
-from EAD_Meteorologico import DadosMeteorologicos
+#from EADs.AED_UR_5MIN import go_UR_5MIN
+#from EADs.AED_UR import getUR
+#from EADs.AED_AHU_VAG import getVAG
+#from UTILS import go_LISTAR_PONTOS, installAllPackageds
+#from EADs.AED_UR_GRAFICOS import boxplot
+#from EADs.AED_UR_GRAFICOS import dispercao
+#from EADs.AED_UR_GRAFICOS import histograma
+#from EADs.AED_UR_GRAFICOS import infos
+#from EADs.AED_UR_GRAFICOS import mapacalor
+#from EADs.EAD_Meteorologico import DadosMeteorologicos
 import pandas as pd
+from Models.MODEL_UR_CORRENTEMOTOR import preverCorrente
+from Models.MODEL_TR import preverTR
+from Models.MODEL_delta_AC import preverDeltaAC
+from Models.MODEL_VAG_Predio import preverVAG
+from Models.MODEL_Ligados import preverLigados
+
+#%% Instalar pacotes 
+
+#installAllPackageds()
 
 #%% Gerar lista de pontos do sistema que tem trend
 #go_LISTAR_PONTOS()
@@ -24,39 +28,51 @@ import pandas as pd
 #go_UR_5MIN()
 
 #%% Executa análise com 30 minutos de internalo (Sem acréscimo)
-getUR()
+#getUR()
+#df_UR = pd.read_csv('Dados BMS\df_UR.csv', delimiter=',')
 
 #%% Executa análise de VAG
-getVAG()
+#getVAG()
+#df_VAG = pd.read_csv('Dados BMS\df_VAG.csv', delimiter=',')
 
-#%% Gerar dataframe
+#%% Juntar os dataframes (Já foi juntado!)
 
-df_UR = pd.read_csv('Dados BMS\df_UR.csv', delimiter=',')
-df_VAG = pd.read_csv('Dados BMS\df_VAG.csv', delimiter=',')
+#colunas_para_juntar = ['VAG Predio', 'Ligados']
 
-#%% Juntar os dataframes
+#df_UR = pd.merge(df_UR, df_VAG[['UTCDateTime'] + colunas_para_juntar], on='UTCDateTime', how='left')
 
-colunas_para_juntar = ['VAG Predio', 'Ligados']
+#df_UR.info() 
 
-df_UR = pd.merge(df_UR, df_VAG[['UTCDateTime'] + colunas_para_juntar], on='UTCDateTime', how='left')
+#del colunas_para_juntar
 
-df_UR.info() 
+#%% Executa tratamento de dados mateorológicos (Já foi juntado)
 
-del colunas_para_juntar
+#df_UR = DadosMeteorologicos(df_UR)
 
-#%% Executa tratamento de dados mateorológicos
-df_UR = DadosMeteorologicos(df_UR)
+#df_UR.to_csv('Dados BMS\df_UR.csv', index=False)
 
-df_UR.info() 
+#df_UR = pd.read_csv('Dados BMS\df_UR.csv', delimiter=',')
+#df_VAG = pd.read_csv('Dados BMS\df_VAG.csv', delimiter=',')
 
 #%% Análise UR 
 
-infos(df_UR)
-dispercao(df_UR)
-histograma(df_UR)
-mapacalor(df_UR)
-boxplot(df_UR)
+#infos(df_UR)
+#dispercao(df_UR)
+#histograma(df_UR)
+#mapacalor(df_UR)
+#boxplot(df_UR)
 
+
+#%% Modelos
+
+df_UR = pd.read_csv('Dados BMS\df_UR.csv', delimiter=',')
+df_teste = df_UR[df_UR['ur_correnteMotor'] != 0]
+
+df_indicators_UR = preverCorrente(df_UR)
+df_indicators_Delta_AC = preverDeltaAC(df_UR)
+df_indicators_VAG = preverVAG(df_UR)
+df_indicators_TR = preverTR(df_UR)
+df_indicators_Ligados = preverLigados(df_UR)
 
 #%% Deduções
 

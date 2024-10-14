@@ -1,5 +1,9 @@
 #%% Importações
 
+def installAllPackageds():
+    !pip install xgboost lightgbm catboost scikit-learn matplotlib numpy pandas tensorflow
+    !pip install pyodbc sqlalchemy
+    
 def go_LISTAR_PONTOS():
        
     import pandas as pd
