@@ -122,6 +122,12 @@ with col2:
         st.plotly_chart(fig, use_container_width=True)
 
         # Exibir o cartão abaixo do gráfico com cor condicional e tamanho reduzido
-        st.markdown(f'<div class="card" style="background-color: {card_color}; color: {text_color};">Valor da Corrente: {predicted_corrente:.2f} %</div>', unsafe_allow_html=True)
+        st.markdown(f'''
+    <div style="display: flex; justify-content: center;">
+        <div class="card" style="width: 80%; background-color: {card_color}; color: {text_color}; padding: 20px; margin-left: 50px;">
+            Valor da Corrente: {predicted_corrente:.2f} %
+        </div>
+    </div>
+    ''', unsafe_allow_html=True)
     else:
         st.warning("O modelo e o scaler precisam ser carregados corretamente para fazer previsões.")
