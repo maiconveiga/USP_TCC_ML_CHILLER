@@ -61,8 +61,8 @@ with col1:
 
 # Verificar se o modelo foi carregado corretamente antes de continuar
 try:
-    model = joblib.load('ModelsDeploy/corrente_motor_model.pkl')
-    scaler = joblib.load('ModelsDeploy/scaler.pkl')
+    model = joblib.load('./ModelsDeploy/corrente_motor_model.pkl')
+    scaler = joblib.load('./ModelsDeploy/scaler.pkl')
     st.success("Modelo e scaler carregados com sucesso.")
 except Exception as e:
     st.error(f"Erro ao carregar o modelo ou scaler: {e}")
@@ -99,7 +99,7 @@ with col2:
 
         # Criar a barra vertical usando Plotly com a cor condicional
         fig = go.Figure(go.Bar(
-            x=['Corrente Chiller (A)'],  # Nome do eixo X
+            x=['Corrente Chiller (%)'],  # Nome do eixo X
             y=[predicted_corrente],  # Valor previsto
             marker=dict(color=bar_color),  # Cor da barra
             width=[0.3],  # Largura da barra
@@ -108,9 +108,9 @@ with col2:
 
         # Ajustando o layout do gráfico
         fig.update_layout(
-            title="Corrente Chiller (A)",  # Título do gráfico
+            title="Corrente Chiller (%)",  # Título do gráfico
             height=400,  # Altura da barra
-            yaxis=dict(range=[0, 100], title="Corrente (A)"),  # Limitar de 0 a 100
+            yaxis=dict(range=[0, 100], title="Corrente (%)"),  # Limitar de 0 a 100
             xaxis=dict(showticklabels=False),  # Remover rótulos do eixo X
             margin=dict(t=40, b=0, l=0, r=0),  # Ajuste das margens
             showlegend=False  # Remover a legenda
@@ -120,6 +120,6 @@ with col2:
         st.plotly_chart(fig, use_container_width=True)
 
         # Exibir o cartão abaixo do gráfico com cor condicional e tamanho reduzido
-        st.markdown(f'<div class="card" style="background-color: {card_color}; color: {text_color};">Valor da Corrente: {predicted_corrente:.2f} A</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="card" style="background-color: {card_color}; color: {text_color};">Valor da Corrente: {predicted_corrente:.2f} %</div>', unsafe_allow_html=True)
     else:
         st.warning("O modelo e o scaler precisam ser carregados corretamente para fazer previsões.")
