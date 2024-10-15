@@ -61,9 +61,13 @@ with col1:
 
 # Verificar se o modelo foi carregado corretamente antes de continuar
 try:
-
-    model = joblib.load('./predict_service/ModelsDeploy/corrente_motor_model.pkl')
-    scaler = joblib.load('./predict_service/ModelsDeploy/scaler.pkl')
+    prod = True
+    if prod:
+        model = joblib.load('./predict_service/ModelsDeploy/corrente_motor_model.pkl')
+        scaler = joblib.load('./predict_service/ModelsDeploy/scaler.pkl')
+    else:
+        model = joblib.load('ModelsDeploy/corrente_motor_model.pkl')
+        scaler = joblib.load('ModelsDeploy/scaler.pkl')
 
     st.success("Modelo e scaler carregados com sucesso.")
 except Exception as e:
