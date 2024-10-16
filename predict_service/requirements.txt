@@ -1,13 +1,4 @@
-catboost
-gboost
+streamlit 
+numpy 
 joblib
-lightgbm
-matplotlib
-numpy
 pandas
-plotly
-pyodbc
-scikit-learn
-sqlalchemy
-streamlit
-tensorflow
