@@ -4,20 +4,27 @@ import joblib
 import pandas as pd
 
 # Carregar o modelo e o scaler
-model_corrente = joblib.load('ModelsDeploy/corrente/model.pkl')
-scaler_corrente = joblib.load('ModelsDeploy/corrente/scaler.pkl')
+prod = True
 
-model_deltaAC = joblib.load('ModelsDeploy/deltaAC/model.pkl')
-scaler_deltaAC = joblib.load('ModelsDeploy/deltaAC/scaler.pkl')
+pathProd = ''
 
-model_Ligados = joblib.load('ModelsDeploy/Ligados/model.pkl')
-scaler_Ligados = joblib.load('ModelsDeploy/Ligados/scaler.pkl')
+if prod:
+    pathProd = 'predict_service/'
+    
+model_corrente = joblib.load(f'{pathProd}ModelsDeploy/corrente/model.pkl')
+scaler_corrente = joblib.load(f'{pathProd}ModelsDeploy/corrente/scaler.pkl')
 
-model_TR = joblib.load('ModelsDeploy/TR/model.pkl')
-scaler_TR = joblib.load('ModelsDeploy/TR/scaler.pkl')
+model_deltaAC = joblib.load(f'{pathProd}ModelsDeploy/deltaAC/model.pkl')
+scaler_deltaAC = joblib.load(f'{pathProd}ModelsDeploy/deltaAC/scaler.pkl')
 
-model_VAG = joblib.load('ModelsDeploy/VAG/model.pkl')
-scaler_VAG = joblib.load('ModelsDeploy/VAG/scaler.pkl')
+model_Ligados = joblib.load(f'{pathProd}ModelsDeploy/Ligados/model.pkl')
+scaler_Ligados = joblib.load(f'{pathProd}ModelsDeploy/Ligados/scaler.pkl')
+
+model_TR = joblib.load(f'{pathProd}ModelsDeploy/TR/model.pkl')
+scaler_TR = joblib.load(f'{pathProd}ModelsDeploy/TR/scaler.pkl')
+
+model_VAG = joblib.load(f'{pathProd}ModelsDeploy/VAG/model.pkl')
+scaler_VAG = joblib.load(f'{pathProd}ModelsDeploy/VAG/scaler.pkl')
 
 # Ajustar o layout: sliders na lateral
 st.sidebar.title("Parâmetros de Entrada")
