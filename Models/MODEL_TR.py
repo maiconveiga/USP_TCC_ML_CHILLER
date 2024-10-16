@@ -5,6 +5,7 @@ def preverTR(df):
     from sklearn.linear_model import LinearRegression
     from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
     import pandas as pd
+    import joblib
 
     #%% Separando as features (X) e o target (y)
     
@@ -28,7 +29,7 @@ def preverTR(df):
     #%% Normalização e treinamento
     
     # Dividindo o dataset em treino e teste
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
     
     # Normalizando os dados (opcional, mas recomendado para alguns modelos)
     scaler = StandardScaler()
@@ -83,8 +84,10 @@ def preverTR(df):
     plt.tight_layout()
     plt.show()
 
-    import joblib
-    joblib.dump(model_rf, 'ModelsDeploy\TR.pkl')
+    
+    joblib.dump(scaler, 'predict_service/ModelsDeploy/TR/scaler.pkl')
+    joblib.dump(model_rf, 'predict_service/ModelsDeploy/TR/model.pkl')
+
      
 #%% Usando Gradient Boosting
 

@@ -3,29 +3,27 @@
 def getUR():
     
     import pandas as pd
-    from sqlalchemy import create_engine
     import numpy as np
+    from UTILS import conexaoBanco
     
     #%% Conexão
     
-    server = 'M5282650\\SQLEXPRESS'
-    database = 'JCIHistorianDB'
-    username = 'py'
-    password = 'py'
+    engine = conexaoBanco()
     
-    connection_string = f"mssql+pyodbc://{username}:{password}@{server}/{database}?driver=SQL+Server"
-    engine = create_engine(connection_string)
     #%% Variáveis
     
-    ur_temp_entrada = 'S1-ADX1:S1-ADX-NAE1/S1-ADX1-NAE1-TR1.Chiller 2.Analog Values.AV-6.Present Value'
-    ur_temp_saida = 'S1-ADX1:S1-ADX-NAE1/S1-ADX1-NAE1-TR1.Chiller 2.Analog Values.AV-5.Present Value'
-    ur_kwh = 'S1-ADX1:S1-ADX-NAE1/S1-ADX1-NAE1-TR1.Chiller 2.Analog Values.AV-35.Present Value' 
-    ur_kwhtr = 'S1-ADX1:S1-ADX-NAE1/Programming.UR2_KWHTR.Present Value' 
-    ur_temp_entrada_condensacao = 'S1-ADX1:S1-ADX-NAE1/S1-ADX1-NAE1-TR1.Chiller 2.Analog Values.AV-8.Present Value'
-    ur_temp_saida_condensacao = 'S1-ADX1:S1-ADX-NAE1/S1-ADX1-NAE1-TR1.Chiller 2.Analog Values.AV-7.Present Value'
-    temp_externa = 'S1-ADX1:S1-ADX-NAE4/S1-ADX1-NAE4-TR1.QAC-6PV-03-B.TC-06-03.TC-06-03 - STE.Present Value'
-    ur_correnteMotor = 'S1-ADX1:S1-ADX-NAE1/S1-ADX1-NAE1-TR1.Chiller 2.Analog Values.AV-29.Present Value'
-    setpoint_ur = 9
+    df_title = pd.read_excel('Dados BMS/Lista_Pontos_Chiller.xlsx')
+    
+    ur_temp_entrada = df_title.iloc[0,0]
+    ur_temp_saida = df_title.iloc[1,0]
+    ur_kwh = df_title.iloc[2,0]
+    ur_kwhtr = df_title.iloc[3,0]
+    ur_temp_entrada_condensacao = df_title.iloc[4,0]
+    ur_temp_saida_condensacao = df_title.iloc[5,0]
+    ur_correnteMotor = df_title.iloc[6,0]
+    temp_externa = df_title.iloc[7,0]
+
+ 
     
     #%% Coleta de dados 
     
@@ -133,33 +131,17 @@ def getUR():
     df_ur.replace([np.inf, -np.inf], np.nan, inplace=True)
     
     df_ur = df_ur.dropna()
-    
-    #df_ur = df_ur[~(df_ur['UR_KWH'] == 0) & (df_ur['UR_KWh_TR'] != 0)]
-    
-    #%% Atribuição de setpoint
-    
-    df_ur['Setpoint_AG'] = setpoint_ur
-    
-    
+
     #%% Ajustando a periodicidade de leitura de corrente
+
+    inicio = pd.to_datetime(df_ur['UTCDateTime'].min())
     
-    # Definir o intervalo de tempo desejado
-    inicio = pd.to_datetime('2023-06-01 03:00:00')
-    
-    fim = pd.to_datetime('2024-09-09 03:00:00')
-    
-    # Criar uma sequência de datas com intervalos de 30 minutos
-    novos_horarios = pd.date_range(start=inicio, end=fim, freq='30T')
-    # Criar um DataFrame vazio com a coluna 'UTCDateTime' preenchida com os novos horários
+    fim = pd.to_datetime(df_ur['UTCDateTime'].max())
+     
+    novos_horarios = pd.date_range(start=inicio, end=fim, freq='30min')
     df_novos_horarios = pd.DataFrame(novos_horarios, columns=['UTCDateTime'])
-    
-    # Fazer um merge entre o DataFrame original e o novo DataFrame de horários
-    # Vamos usar um merge para alinhar com os dados existentes
     df_corrente['UTCDateTime'] = pd.to_datetime(df_corrente['UTCDateTime'])
-    
-    
     df_corrente = pd.merge(df_novos_horarios, df_corrente, on='UTCDateTime', how='left')
-    
     df_ur = pd.merge(df_corrente, df_ur, on='UTCDateTime', how='left')
     df_ur = df_ur.dropna()
     

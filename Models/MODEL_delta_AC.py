@@ -5,6 +5,7 @@ def preverDeltaAC(df):
     from sklearn.linear_model import LinearRegression
     from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
     import pandas as pd
+    import joblib
     
     #%% Separando as features (X) e o target (y)
     
@@ -23,7 +24,7 @@ def preverDeltaAC(df):
     #%% Normalização e treinamento
     
     # Dividindo o dataset em treino e teste
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
     
     # Normalizando os dados (opcional, mas recomendado para alguns modelos)
     scaler = StandardScaler()
@@ -41,6 +42,7 @@ def preverDeltaAC(df):
     mse = mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
     mae = mean_absolute_error(y_test, y_pred)
+    
     
     #%% Resultados
     print(f'MSE: {mse}')
@@ -78,8 +80,9 @@ def preverDeltaAC(df):
     plt.tight_layout()
     plt.show()
     
-    import joblib
-    joblib.dump(model_rf, 'DELTA_AC.pkl')
+    # Salvando o modelo e o scaler
+    joblib.dump(scaler, 'predict_service/ModelsDeploy/deltaAC/scaler.pkl')
+    joblib.dump(model_rf, 'predict_service/ModelsDeploy/deltaAC/model.pkl')
 
 #%% Usando Gradient Boosting
 

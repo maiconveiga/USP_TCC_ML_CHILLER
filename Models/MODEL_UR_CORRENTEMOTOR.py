@@ -67,8 +67,8 @@ def preverCorrente(df):
     print(f'MAE (Random Forest): {mae_rf}')
     
     # Salvando o modelo e o scaler
-    joblib.dump(scaler, 'predict_service/ModelsDeploy/scaler.pkl')
-    joblib.dump(model_rf, 'predict_service/ModelsDeploy/corrente_motor_model.pkl')
+    joblib.dump(scaler, 'predict_service/ModelsDeploy/corrente/scaler.pkl')
+    joblib.dump(model_rf, 'predict_service/ModelsDeploy/corrente/model.pkl')
 
 
     importances = model_rf.feature_importances_

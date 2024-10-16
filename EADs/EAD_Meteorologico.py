@@ -33,12 +33,14 @@ def DadosMeteorologicos(df):
     df_meteo = df_meteo.rename(columns={'UMIDADE RELATIVA DO AR, HORARIA (%)': 'Umidade (%)'})
     
     #%% Criação de calendário de acordo com o que temos de informação BMS
-    inicio = pd.to_datetime('2023-06-01 03:00:00')
     
-    fim = pd.to_datetime('2024-09-09 03:00:00')
+    inicio = pd.to_datetime(df['UTCDateTime'].min())
+    
+    fim = pd.to_datetime(df['UTCDateTime'].max())
+
     
     # Criar uma sequência de datas com intervalos de 30 minutos
-    novos_horarios = pd.date_range(start=inicio, end=fim, freq='30T')
+    novos_horarios = pd.date_range(start=inicio, end=fim, freq='30min')
     # Criar um DataFrame vazio com a coluna 'UTCDateTime' preenchida com os novos horários
     df_novos_horarios = pd.DataFrame(novos_horarios, columns=['UTCDateTime'])
     
@@ -87,4 +89,5 @@ def DadosMeteorologicos(df):
     df_merged = pd.merge(df_SemNA, df, on='UTCDateTime', how='inner')
     #df_merged.to_excel('df.xlsx', index=False)
     df_merged.to_csv('Dados BMS\df_UR.csv')
+    
     return df_merged
