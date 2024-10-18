@@ -38,9 +38,8 @@ def DadosMeteorologicos(df):
     
     fim = pd.to_datetime(df['UTCDateTime'].max())
 
-    
     # Criar uma sequência de datas com intervalos de 30 minutos
-    novos_horarios = pd.date_range(start=inicio, end=fim, freq='30min')
+    novos_horarios = pd.date_range(start=inicio, end=fim, freq='60min')
     # Criar um DataFrame vazio com a coluna 'UTCDateTime' preenchida com os novos horários
     df_novos_horarios = pd.DataFrame(novos_horarios, columns=['UTCDateTime'])
     
@@ -81,13 +80,15 @@ def DadosMeteorologicos(df):
 
     #%% Copia de dataframe sem dados faltantes e join com o dataframe final
     
-    df_SemNA = df_meteo.dropna()
+    df_SemNA = df_meteo.dropna().copy()
+    #df_SemNA = df_meteo.copy()    
     
-    df_SemNA['UTCDateTime'] = pd.to_datetime(df_SemNA['UTCDateTime'], errors='coerce')
+    df_SemNA.loc[:, 'UTCDateTime'] = pd.to_datetime(df_SemNA['UTCDateTime'], errors='coerce')
+    #df_SemNA['UTCDateTime'] = pd.to_datetime(df_SemNA['UTCDateTime'], errors='coerce')
     df['UTCDateTime'] = pd.to_datetime(df['UTCDateTime'], errors='coerce')
     
-    df_merged = pd.merge(df_SemNA, df, on='UTCDateTime', how='inner')
-    #df_merged.to_excel('df.xlsx', index=False)
-    df_merged.to_csv('Dados BMS\df_UR.csv')
+    df_merged = pd.merge(df_SemNA, df, on='UTCDateTime', how='left')
+    df = df_merged.dropna(subset=[col for col in df.columns if col not in ['UTCDateTime']], how='all')
+    #df = df.fillna(df.median())
     
-    return df_merged
+    return df

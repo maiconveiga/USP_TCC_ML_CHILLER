@@ -16,13 +16,12 @@ def preverTR(df):
     
     
     X = df[['Pressao (mB)', 'Temperatura (°C)', 'Umidade (%)',
-            
             'delta_AC',
-            'VAG Predio',
-            
-            'FimDeSemana', 
+            'VAG Aberta %',
+            'ur_temp_saida', 
+            'FimDeSemana',
             'HorarioComercial', 
-            'Ligados']]
+            'Fancoil ligado %' ]]
     
     y = df['TR']
     
@@ -84,10 +83,6 @@ def preverTR(df):
     plt.tight_layout()
     plt.show()
 
-    
-    joblib.dump(scaler, 'predict_service/ModelsDeploy/TR/scaler.pkl')
-    joblib.dump(model_rf, 'predict_service/ModelsDeploy/TR/model.pkl')
-
      
 #%% Usando Gradient Boosting
 
@@ -136,6 +131,7 @@ def preverTR(df):
     print(f'MSE (LightGBM): {mse_lgb}')
     print(f'R² (LightGBM): {r2_lgb}')
     print(f'MAE (LightGBM): {mae_lgb}')
+    
 
 #%% Usando CatBoost
 
@@ -263,5 +259,38 @@ def preverTR(df):
     'R²': [r2, r2_rf, r2_gbm, r2_xgb, r2_lgb, r2_cat, r2_svr, r2_ridge, r2_en, r2_nn],
     'MAE': [mse, mae_rf, mae_gbm, mae_xgb, mae_lgb, mae_cat, mae_svr, mae_ridge, mae_en, mae_nn]}
 
+#%% Eleger campeão
+    dataframe = pd.DataFrame(data)   
+    indice_maior_r2 = dataframe['R²'].idxmax()
+    campeao = dataframe.loc[indice_maior_r2, 'Modelo']
+
+    path = 'TR'
+    # Salvando o modelo e o scaler
+    joblib.dump(scaler, f'predict_service/ModelsDeploy/{path}/scaler.pkl')
+    
+    if campeao == 'Linear':
+        joblib.dump(model, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    elif campeao == 'Random Forest':
+        joblib.dump(model_rf, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    elif campeao == 'GBM':  
+        joblib.dump(model_gbm, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    elif campeao == 'XGBM':  
+        joblib.dump(model_xgb, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    elif campeao == 'LGBM': 
+        joblib.dump(model_lgb, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    elif campeao == 'CAT': 
+        joblib.dump(model_cat, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    elif campeao == 'SVR': 
+        joblib.dump(model_svr, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    elif campeao == 'Ridge':   
+        joblib.dump(model_ridge, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    elif campeao == 'ElasticNet': 
+        joblib.dump(model_en, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    else:
+        joblib.dump(history, f'predict_service/ModelsDeploy/{path}/model.pkl')
+
+    print(f'Melhor modelo foi {campeao}')
+    
+#%% Retorno
     df_indicators = pd.DataFrame(data)
     return df_indicators

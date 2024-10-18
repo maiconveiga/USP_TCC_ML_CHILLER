@@ -10,10 +10,8 @@ def getVAG(df_ur):
     df_lista = pd.read_csv('Dados BMS\Lista_Pontos_VAG.csv')
     engine = conexaoBanco()
     
-
 #%% Coleta
 
-    
     inicio = pd.to_datetime(df_ur['UTCDateTime'].min())
     
     fim = pd.to_datetime(df_ur['UTCDateTime'].max())
@@ -22,7 +20,6 @@ def getVAG(df_ur):
 
     df_VAG_30min = pd.DataFrame(index=index_30min)
 
-    
     for PointName in df_lista['PointName']:
         # Construção da query
         query = f"SELECT UTCDateTime, PointName, ActualValue FROM [JCIHistorianDB].[dbo].[RawAnalog] WHERE PointName = '{PointName}'"
@@ -68,15 +65,14 @@ def getVAG(df_ur):
 #%% Criar total de %VAG
 
     #df_VAG_5min['VAG Predio'] = (df_VAG_5min.drop(columns=['UTCDateTime']).sum(axis=1)/36)
-    df_VAG_30min['VAG Predio'] = (df_VAG_30min.drop(columns=['UTCDateTime']).sum(axis=1)/36)
+    df_VAG_30min['VAG Aberta %'] = (df_VAG_30min.drop(columns=['UTCDateTime']).sum(axis=1)/36)
 
 #%% Criar total de AHU ligada
 
     #df_VAG_5min['Ligados'] = ((36 - (df_VAG_5min.drop(columns=['UTCDateTime']).apply(lambda row: (row == 0).sum(), axis=1)))*100)/36
-    df_VAG_30min['Ligados'] =((36 - (df_VAG_30min.drop(columns=['UTCDateTime']).apply(lambda row: (row == 0).sum(), axis=1)))*100)/36
+    df_VAG_30min['Fancoil ligado %'] =((36 - (df_VAG_30min.drop(columns=['UTCDateTime']).apply(lambda row: (row == 0).sum(), axis=1)))*100)/36
     
 #%% Gerar excel
-    df_VAG_30min.to_csv('Dados BMS\df_VAG.csv', index=False)
-    
+    #df_VAG_30min.to_csv('Dados BMS\df_VAG.csv', index=False)
     return df_VAG_30min
     

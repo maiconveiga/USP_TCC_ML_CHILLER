@@ -1,55 +1,142 @@
 #%% Importações
 
-from EADs.AED_UR import getUR
-from EADs.AED_AHU_VAG import getVAG
-from UTILS import getListaEquipamentos,juntarDF
-from EADs.AED_Graph import boxplot, dispercao, histograma, infos, mapacalor, printModelStats
+#from EADs.AED_UR import getUR
+from EADs.AED_Tratar import tratarChiller, tratarFancoil
+#from EADs.AED_AHU_VAG import getVAG
+from EADs.AED_BMS import getBMS
+from UTILS import getListaEquipamentos, juntarDF
+from EADs.AED_Graph import boxplot, histograma, mapacalor# printModelStats
 from EADs.EAD_Meteorologico import DadosMeteorologicos
 from Models.MODEL_UR_CORRENTEMOTOR import preverCorrente
 from Models.MODEL_TR import preverTR
 from Models.MODEL_delta_AC import preverDeltaAC
 from Models.MODEL_VAG_Predio import preverVAG
 from Models.MODEL_Ligados import preverLigados
+from Models.MODEL_KWH import preverkwh
+import pandas as pd
+
 
 #%% Gerar lista de pontos do sistema que tem trend
+
 getListaEquipamentos()
 
-#%% Executa análise com 30 minutos de internalo (Sem acréscimo)
-df_UR = getUR()
+#%% Coleta
+df_all = getBMS()
 
-#%% Executa análise de VAG
-df_VAG = getVAG(df_UR)
+#%%Separação
+df_fancoil = df_all['Fancoil'].copy()
+df_ur1 = df_all['Chiller 1'].copy()
+df_ur2 = df_all['Chiller 2'].copy()
 
-#%% Juntar os dataframes (Já foi juntado!)
+linhas_com_nan_Fancoil = df_fancoil[df_fancoil.isna().any(axis=1)]
+linhas_com_nan_ur1 = df_ur1[df_ur1.isna().any(axis=1)]
+linhas_com_nan_ur2 = df_ur2[df_ur2.isna().any(axis=1)]
 
-df_UR = juntarDF(df_UR, df_VAG)
-del df_VAG
 
-#%% Executa tratamento de dados mateorológicos (Já foi juntado)
+#%% Tratamento inicial
+df_fancoil_Tratado = tratarFancoil(df_fancoil).copy()
+df_ur1_Tratado = tratarChiller(df_ur1).copy()
+df_ur2_Tratado = tratarChiller(df_ur2).copy()
 
-df_UR = DadosMeteorologicos(df_UR)
+linhas_com_nan_Fancoil = df_fancoil_Tratado[df_fancoil_Tratado.isna().any(axis=1)]
+linhas_com_nan_ur1 = df_ur1_Tratado[df_ur1_Tratado.isna().any(axis=1)]
+linhas_com_nan_ur2 = df_ur2_Tratado[df_ur2_Tratado.isna().any(axis=1)]
+
+#%% Tratamento refatorado
+df_fancoil_Tratado = df_fancoil_Tratado.dropna()
+df_ur1_Tratado = df_ur1_Tratado.dropna()
+df_ur2_Tratado = df_ur2_Tratado.dropna()
+
+linhas_com_nan_Fancoil = df_fancoil_Tratado[df_fancoil_Tratado.isna().any(axis=1)]
+linhas_com_nan_ur1 = df_ur1_Tratado[df_ur1_Tratado.isna().any(axis=1)]
+linhas_com_nan_ur2 = df_ur2_Tratado[df_ur2_Tratado.isna().any(axis=1)]
+
+#%% Juntar dataframes
+df_ur1_Tratado_Fancoil = juntarDF(df_ur1_Tratado, df_fancoil_Tratado)
+df_ur2_Tratado_Fancoil = juntarDF(df_ur2_Tratado, df_fancoil_Tratado)
+
+linhas_com_nan_ur1 = df_ur1_Tratado_Fancoil[df_ur1_Tratado_Fancoil.isna().any(axis=1)]
+linhas_com_nan_ur2 = df_ur2_Tratado_Fancoil[df_ur2_Tratado_Fancoil.isna().any(axis=1)]
+
+#%% Tratar dados meteorologicos
+df_ur1_Tratado_Fancoil_Clima = DadosMeteorologicos(df_ur1_Tratado_Fancoil)
+df_ur2_Tratado_Fancoil_Clima = DadosMeteorologicos(df_ur2_Tratado_Fancoil)
+
+linhas_com_nan_ur1 = df_ur1_Tratado_Fancoil_Clima[df_ur1_Tratado_Fancoil_Clima.isna().any(axis=1)]
+linhas_com_nan_ur2 = df_ur2_Tratado_Fancoil_Clima[df_ur2_Tratado_Fancoil_Clima.isna().any(axis=1)]
+
+#%% Atribuir aos dataframes finais
+df_ur_1 = df_ur1_Tratado_Fancoil_Clima.copy()
+df_ur_2 = df_ur2_Tratado_Fancoil_Clima.copy()
+
+df_ur_1.to_csv('Dados BMS\df_ur_1.csv', index=False)
+df_ur_2.to_csv('Dados BMS\df_ur_2.csv', index=False)
+
+#%% Antigo
+
+# #Coleta e tratamento
+# df_ur_0 = getUR()
+
+# df_VAG = getVAG(df_ur_0)
+
+# # Juntar dataframes
+# df_ur_0 = juntarDF(df_ur_0, df_VAG)
+# del df_VAG
+
+# # Tratar dados meteorologicos
+# df_ur_0 = DadosMeteorologicos(df_ur_0)
+
+# linhas_com_nan_ur = df_ur_0[df_ur_0.isna().any(axis=1)]
+
+
+#%% Seguir a análise daqui.
+
+df_ur_1 = pd.read_csv('Dados BMS\df_ur_1.csv', delimiter=',')
+df_ur_2 = pd.read_csv('Dados BMS\df_ur_2.csv', delimiter=',')
 
 #%% Análise UR 
 
-infos(df_UR)
-dispercao(df_UR)
-histograma(df_UR)
-mapacalor(df_UR)
-boxplot(df_UR)
+histograma(df_ur_1)
+histograma(df_ur_2)
+
+mapacalor(df_ur_1)
+mapacalor(df_ur_2)
+
+boxplot(df_ur_1)
+boxplot(df_ur_2)
 
 #%% Modelos
 
-df_indicators_Corrente = preverCorrente(df_UR)
-df_indicators_Delta_AC = preverDeltaAC(df_UR)
-df_indicators_VAG = preverVAG(df_UR)
-df_indicators_TR = preverTR(df_UR)
-df_indicators_Ligados = preverLigados(df_UR)
+df_indicators_Delta_AC_df_ur_1 = preverDeltaAC(df_ur_1)
+df_indicators_Delta_AC_df_ur_2 = preverDeltaAC(df_ur_2)
 
-printModelStats(df_indicators_Corrente, 'Corrente')
-printModelStats(df_indicators_Delta_AC, 'Delta AC')
-printModelStats(df_indicators_VAG, 'VAG')
-printModelStats(df_indicators_TR, 'TR')
-printModelStats(df_indicators_Ligados, 'Equipamentos ligados')
+
+df_indicators_VAG_df_ur_1 = preverVAG(df_ur_1)
+df_indicators_VAG_df_ur_2 = preverVAG(df_ur_2)
+
+
+df_indicators_TR_df_ur_1 = preverTR(df_ur_1)
+df_indicators_TR_df_ur_2 = preverTR(df_ur_2)
+
+
+df_indicators_Corrente_df_ur_1 = preverCorrente(df_ur_1)
+df_indicators_Corrente_df_ur_2 = preverCorrente(df_ur_2)
+
+
+df_indicators_Ligados_df_ur_1 = preverLigados(df_ur_1)
+df_indicators_Ligados_df_ur_2 = preverLigados(df_ur_2)
+
+
+df_indicators_KWH_df_ur_1 = preverkwh(df_ur_1)
+df_indicators_KWH_df_ur_2 = preverkwh(df_ur_2)
+
+# printModelStats(df_indicators_Delta_AC_df_ur_0, 'Chiller 1 Antigo')
+# printModelStats(df_indicators_Delta_AC_df_ur_1, 'Chiller 1 Novo')
+# printModelStats(df_indicators_Delta_AC_df_ur_2, 'Chiller 2 Novo')
+
+# df_estudo = df_ur_0[['Pressao (mB)', 'Temperatura (°C)', 'Umidade (%)','ur_temp_saida','FimDeSemana', 'HorarioComercial','ur_correnteMotor','VAG Aberta %','Fancoil ligado %','delta_AC','TR', 'ur_kwh', 'UTCDateTime']]
+# df_estudo = df_ur_1[['Pressao (mB)', 'Temperatura (°C)', 'Umidade (%)','ur_temp_saida','FimDeSemana', 'HorarioComercial','ur_correnteMotor','VAG Aberta %','Fancoil ligado %','delta_AC','TR', 'ur_kwh', 'UTCDateTime']]
+# df_estudo = df_ur_2[['Pressao (mB)', 'Temperatura (°C)', 'Umidade (%)','ur_temp_saida','FimDeSemana', 'HorarioComercial','ur_correnteMotor','VAG Aberta %','Fancoil ligado %','delta_AC','TR', 'ur_kwh', 'UTCDateTime']]
 
 #%% Deduções
 

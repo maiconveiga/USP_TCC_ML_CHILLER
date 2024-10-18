@@ -1,4 +1,4 @@
-PointName,Tipo equipamento,Nome equipamento,Ponto
+PointName,Tipo,Equipamento,Ponto
 S1-ADX1:S1-ADX-NAE1/Programming.GERADORES.GMG1.GMG1-LIGADO.Present Value,,,
 S1-ADX1:S1-ADX-NAE1/Programming.GERADORES.GMG1.GMG1-POSICAO-AUTOMATICO.Present Value,,,
 S1-ADX1:S1-ADX-NAE1/Programming.GERADORES.GMG1.GMG1-POSICAO-MANUAL.Present Value,,,

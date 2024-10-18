@@ -2,3 +2,9 @@ streamlit
 numpy 
 joblib
 pandas
+lightgbm
+xgboost
+scikit-learn
+catboost
+tensorflow 
+keras

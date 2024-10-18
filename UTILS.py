@@ -29,8 +29,8 @@ def getListaEquipamentos():
     FROM [JCIHistorianDB].[dbo].[RawAnalog]
     """
     df = pd.read_sql(query, engine)
-    df['Tipo equipamento'] = ''
-    df['Nome equipamento'] = ''
+    df['Tipo'] = ''
+    df['Equipamento'] = ''
     df['Ponto'] = ''
     
     # Salvar o DataFrame como um arquivo Excel
@@ -39,7 +39,32 @@ def getListaEquipamentos():
 def juntarDF(df_UR, df_VAG):
     import pandas as pd
     
-    colunas_para_juntar = ['VAG Predio', 'Ligados']
+    colunas_para_juntar = ['VAG Aberta %', 'Fancoil ligado %']
     df = pd.merge(df_UR, df_VAG[['UTCDateTime'] + colunas_para_juntar], on='UTCDateTime', how='left') 
+    
+    df = df.dropna()
+    
+    return df
 
+def juntarDF1(df_ur, df_fancoil):
+    
+    print("Antes do tratamento")   
+    nan_por_coluna = df_ur.isna().sum()
+    print("Valores NaN por coluna:")
+    print(nan_por_coluna)
+    print("--------------------------------------") 
+
+    import pandas as pd
+
+    colunas_para_juntar = ['VAG Aberta %','Fancoil ligado %']
+    df = pd.merge(df_ur, df_fancoil[['UTCDateTime'] + colunas_para_juntar], on='UTCDateTime', how='left') 
+    
+    df = df.dropna()
+    
+    print("Depois do tratamento")   
+    nan_por_coluna = df.isna().sum()
+    print("Valores NaN por coluna:")
+    print(nan_por_coluna)
+    print("--------------------------------------")  
+    
     return df

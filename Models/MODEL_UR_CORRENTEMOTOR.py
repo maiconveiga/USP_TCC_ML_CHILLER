@@ -12,8 +12,14 @@ def preverCorrente(df):
     
     #%% Separando as features (X) e o target (y)
     
-    X = df[['Pressao (mB)', 'Temperatura (°C)', 'Umidade (%)', 'UR_TEMP_SAIDA',
-            'TR', 'delta_AC', 'VAG Predio', 'Ligados']]
+    X = df[['Pressao (mB)', 'Temperatura (°C)', 'Umidade (%)', 
+            'ur_temp_saida',
+            'TR', 
+            'delta_AC', 
+            'VAG Aberta %', 
+            'Fancoil ligado %',
+            'ur_kwh'
+            ]]
     y = df['ur_correnteMotor']
   
     #%% Normalização e treinamento
@@ -65,11 +71,6 @@ def preverCorrente(df):
     print(f'MSE (Random Forest): {mse_rf}')
     print(f'R² (Random Forest): {r2_rf}')
     print(f'MAE (Random Forest): {mae_rf}')
-    
-    # Salvando o modelo e o scaler
-    joblib.dump(scaler, 'predict_service/ModelsDeploy/corrente/scaler.pkl')
-    joblib.dump(model_rf, 'predict_service/ModelsDeploy/corrente/model.pkl')
-
 
     importances = model_rf.feature_importances_
     indices = np.argsort(importances)[::-1]
@@ -204,9 +205,10 @@ def preverCorrente(df):
     from tensorflow.keras.layers import Dense
     from tensorflow.keras.optimizers import Adam
     from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+    import joblib  # Para salvar o scaler
+    from tensorflow.keras.models import load_model  # Para carregar o modelo no futuro
     
     # Preparar os dados
-
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
     # Normalizar os dados
@@ -215,20 +217,20 @@ def preverCorrente(df):
     X_test = scaler.transform(X_test)
     
     # Definir o modelo
-    model = Sequential()
-    model.add(Dense(64, input_dim=X_train.shape[1], activation='relu'))
-    model.add(Dense(32, activation='relu'))
-    model.add(Dense(16, activation='relu'))
-    model.add(Dense(1, activation='linear'))  # Saída para regressão
+    model_nn = Sequential()
+    model_nn.add(Dense(64, input_dim=X_train.shape[1], activation='relu'))
+    model_nn.add(Dense(32, activation='relu'))
+    model_nn.add(Dense(16, activation='relu'))
+    model_nn.add(Dense(1, activation='linear'))  # Saída para regressão
     
     # Compilar o modelo
-    model.compile(optimizer=Adam(learning_rate=0.001), loss='mean_squared_error')
+    model_nn.compile(optimizer=Adam(learning_rate=0.001), loss='mean_squared_error')
     
     # Treinar o modelo
-    history = model.fit(X_train, y_train, epochs=100, batch_size=32, validation_split=0.2, verbose=1)
+    history = model_nn.fit(X_train, y_train, epochs=100, batch_size=32, validation_split=0.2, verbose=1)
     
     # Fazer previsões
-    y_pred = model.predict(X_test)
+    y_pred = model_nn.predict(X_test)
     
     # Avaliar o modelo
     mse_nn = mean_squared_error(y_test, y_pred)
@@ -238,18 +240,8 @@ def preverCorrente(df):
     print(f'MSE (Neural Network): {mse_nn}')
     print(f'R² (Neural Network): {r2_nn}')
     print(f'MAE (Neural Network): {mae_nn}')
+     # scaler_loaded = joblib.load('scaler_nn.pkl')
 
-    import matplotlib.pyplot as plt
-    
-    # Plotar a perda (loss) durante o treinamento e validação
-    plt.plot(history.history['loss'], label='Training Loss')
-    plt.plot(history.history['val_loss'], label='Validation Loss')
-    plt.title('Model Loss')
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
-    plt.legend()
-    plt.show()
-    
 #%% Matriz de comparação de modelos    
     data = {
     'Modelo': ['Linear','Random Forest', 'GBM','XGBM','LGBM','CAT','SVR','Ridge','ElasticNet','NN' ],
@@ -257,5 +249,40 @@ def preverCorrente(df):
     'R²': [r2, r2_rf, r2_gbm, r2_xgb, r2_lgb, r2_cat, r2_svr, r2_ridge, r2_en, r2_nn],
     'MAE': [mse, mae_rf, mae_gbm, mae_xgb, mae_lgb, mae_cat, mae_svr, mae_ridge, mae_en, mae_nn]}
 
+#%% Eleger campeão
+    dataframe = pd.DataFrame(data)   
+    indice_maior_r2 = dataframe['R²'].idxmax()
+    campeao = dataframe.loc[indice_maior_r2, 'Modelo']
+
+    path = 'corrente'
+    # Salvando o modelo e o scaler
+    joblib.dump(scaler, f'predict_service/ModelsDeploy/{path}/scaler.pkl')
+    
+    if campeao == 'Linear':
+        joblib.dump(model, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    elif campeao == 'Random Forest':
+        joblib.dump(model_rf, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    elif campeao == 'GBM':  
+        joblib.dump(model_gbm, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    elif campeao == 'XGBM':  
+        joblib.dump(model_xgb, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    elif campeao == 'LGBM': 
+        joblib.dump(model_lgb, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    elif campeao == 'CAT': 
+        joblib.dump(model_cat, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    elif campeao == 'SVR': 
+        joblib.dump(model_svr, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    elif campeao == 'Ridge':   
+        joblib.dump(model_ridge, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    elif campeao == 'ElasticNet': 
+        joblib.dump(model_en, f'predict_service/ModelsDeploy/{path}/model.pkl')
+    else:
+        model_nn.save(f'predict_service/ModelsDeploy/{path}/model.keras')  # Salva o modelo no formato Keras
+        model_nn.save(f'predict_service/ModelsDeploy/{path}/model.h5')
+        joblib.dump(scaler, f'predict_service/ModelsDeploy/{path}/scaler.pkl')  # Salva o scaler
+
+    print(f'Melhor modelo foi {campeao}')
+    
+#%% Retorno
     df_indicators = pd.DataFrame(data)
     return df_indicators

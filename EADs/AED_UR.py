@@ -21,36 +21,35 @@ def getUR():
     ur_temp_entrada_condensacao = df_title.iloc[4,0]
     ur_temp_saida_condensacao = df_title.iloc[5,0]
     ur_correnteMotor = df_title.iloc[6,0]
-    temp_externa = df_title.iloc[7,0]
-
- 
+    Pressao_PR_min = df_title.iloc[7,0]
     
     #%% Coleta de dados 
+
     
     ur_query = f"""
     
     SELECT 
         UTCDateTime,
         MAX(CASE 
-            WHEN PointName = '{ur_kwh}'
+            WHEN PointName = '{ur_temp_entrada}'
             THEN ActualValue 
             ELSE NULL 
-        END) AS UR_KWH,
-        MAX(CASE 
-            WHEN PointName = '{ur_kwhtr}' 
-            THEN ActualValue 
-            ELSE NULL 
-        END) AS UR_KWh_TR,
-        MAX(CASE 
-            WHEN PointName = '{ur_temp_entrada}' 
-            THEN ActualValue 
-            ELSE NULL 
-        END) AS UR_TEMP_ENTRADA,
+        END) AS ur_temp_entrada,
         MAX(CASE 
             WHEN PointName = '{ur_temp_saida}' 
             THEN ActualValue 
             ELSE NULL 
-        END) AS UR_TEMP_SAIDA,
+        END) AS ur_temp_saida,
+        MAX(CASE 
+            WHEN PointName = '{ur_kwh}' 
+            THEN ActualValue 
+            ELSE NULL 
+        END) AS ur_kwh,
+        MAX(CASE 
+            WHEN PointName = '{ur_kwhtr}' 
+            THEN ActualValue 
+            ELSE NULL 
+        END) AS ur_kwhtr,
         MAX(CASE 
             WHEN PointName = '{ur_temp_entrada_condensacao}' 
             THEN ActualValue 
@@ -62,44 +61,27 @@ def getUR():
             ELSE NULL 
         END) AS ur_temp_saida_condensacao,
         MAX(CASE 
-            WHEN PointName = '{temp_externa}' 
-            THEN ActualValue 
-            ELSE NULL 
-        END) AS temp_externa
-    FROM 
-        [JCIHistorianDB].[dbo].[RawAnalog]
-    WHERE 
-        PointName IN (
-            '{ur_kwh}',
-            '{ur_kwhtr}',
-            '{ur_temp_entrada}',
-            '{ur_temp_saida}',
-            '{ur_temp_entrada_condensacao}',
-            '{ur_temp_saida_condensacao}',
-            '{temp_externa}' 
-            
-        )
-    GROUP BY 
-        UTCDateTime
-    ORDER BY 
-        UTCDateTime;
-    
-    """
-    
-    corrente_query = f"""
-    
-    SELECT 
-        UTCDateTime,
-        MAX(CASE 
             WHEN PointName = '{ur_correnteMotor}' 
             THEN ActualValue 
             ELSE NULL 
-        END) AS ur_correnteMotor
+        END) AS ur_correnteMotor,
+        MAX(CASE 
+            WHEN PointName = '{Pressao_PR_min}' 
+            THEN ActualValue 
+            ELSE NULL 
+        END) AS Pressao_PR_min
     FROM 
         [JCIHistorianDB].[dbo].[RawAnalog]
     WHERE 
         PointName IN (
-            '{ur_correnteMotor}'    
+            '{ur_temp_entrada}',
+            '{ur_temp_saida}',
+            '{ur_kwh}',
+            '{ur_kwhtr}',
+            '{ur_temp_entrada_condensacao}',
+            '{ur_temp_saida_condensacao}',
+            '{ur_correnteMotor}',
+            '{Pressao_PR_min}'        
         )
     GROUP BY 
         UTCDateTime
@@ -107,30 +89,29 @@ def getUR():
         UTCDateTime;
     
     """
-    
+
     df_ur = pd.read_sql(ur_query, engine)
-    df_corrente = pd.read_sql(corrente_query, engine)
 
     #%% Tratando outliers
     
-    df_ur.loc[(df_ur['UR_TEMP_SAIDA'] < 0) & (df_ur['UR_KWH'] == 0), 'UR_TEMP_SAIDA'] = df_ur['UR_TEMP_ENTRADA']
-    df_ur = df_ur[df_ur['UR_TEMP_SAIDA'] >= 4]
-    df_ur = df_ur[df_ur['UR_TEMP_ENTRADA'] >= 4]
-    df_ur = df_ur[df_ur['temp_externa'] >= 10]
-    df_ur = df_ur[df_ur['ur_temp_entrada_condensacao'] >= 10]
-    df_ur = df_ur[df_ur['ur_temp_saida_condensacao'] >= 10] 
-    
+    df_ur['ur_kwh'] = df_ur['ur_kwh'].ffill()
+    df_ur['ur_kwhtr'] = df_ur['ur_kwhtr'].ffill()
+    df_ur.loc[(df_ur['ur_temp_saida'] < 0) & (df_ur['ur_kwh'] == 0), 'ur_temp_saida'] = df_ur['ur_temp_entrada']
+
+    df_ur['ur_temp_saida'] = df_ur['ur_temp_saida'].ffill()
+    df_ur['ur_temp_entrada'] = df_ur['ur_temp_entrada'].ffill()
+    df_ur['ur_temp_entrada_condensacao'] = df_ur['ur_temp_entrada_condensacao'].ffill()
+    df_ur['ur_temp_saida_condensacao'] = df_ur['ur_temp_saida_condensacao'].ffill()
+    df_ur['ur_correnteMotor'] = df_ur['ur_correnteMotor'].ffill()
+    df_ur['Pressao_PR_min'] = df_ur['Pressao_PR_min'].ffill()
+
+    df_ur.info()
     #%% Calculo para TR
     
-    df_ur['TR'] = df_ur['UR_KWH'] / df_ur['UR_KWh_TR'] 
-    
-    df_ur = df_ur.fillna(0)
-    
-    #%% Limpeza dos inf e nan
-    
+    df_ur['TR'] = df_ur['ur_kwh'] / df_ur['ur_kwhtr'] 
     df_ur.replace([np.inf, -np.inf], np.nan, inplace=True)
-    
-    df_ur = df_ur.dropna()
+    df_ur['TR'] = df_ur['TR'].fillna(0)
+
 
     #%% Ajustando a periodicidade de leitura de corrente
 
@@ -140,17 +121,15 @@ def getUR():
      
     novos_horarios = pd.date_range(start=inicio, end=fim, freq='30min')
     df_novos_horarios = pd.DataFrame(novos_horarios, columns=['UTCDateTime'])
-    df_corrente['UTCDateTime'] = pd.to_datetime(df_corrente['UTCDateTime'])
-    df_corrente = pd.merge(df_novos_horarios, df_corrente, on='UTCDateTime', how='left')
-    df_ur = pd.merge(df_corrente, df_ur, on='UTCDateTime', how='left')
-    df_ur = df_ur.dropna()
     
+    df_ur = pd.merge(df_novos_horarios, df_ur, on='UTCDateTime', how='left')
+    
+    #df_ur = df_ur.dropna()
     
     #%% Criando deltas
     
-    df_ur['delta_AG'] = df_ur['UR_TEMP_ENTRADA'] - df_ur['UR_TEMP_SAIDA']
+    df_ur['delta_AG'] = df_ur['ur_temp_entrada'] - df_ur['ur_temp_saida']
     df_ur['delta_AC'] = df_ur['ur_temp_saida_condensacao'] - df_ur['ur_temp_entrada_condensacao']
-    
     #%% Criar coluna FimDeSemana
     
     df_ur['FimDeSemana'] = df_ur['UTCDateTime'].apply(lambda x: 1 if x.weekday() >= 5 else 0)
@@ -160,5 +139,5 @@ def getUR():
     df_ur['HorarioComercial'] = df_ur['UTCDateTime'].apply(lambda x: 1 if 8 <= x.hour < 17 else 0)
     
 #%% Retorno
-    df_ur.to_csv('Dados BMS\df_UR.csv', index=False)
+    #df_ur.to_csv('Dados BMS\df_UR.csv', index=False)
     return df_ur
